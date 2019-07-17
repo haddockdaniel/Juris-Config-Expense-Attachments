@@ -106,8 +106,9 @@
             this.labelDescription.Name = "labelDescription";
             this.labelDescription.Size = new System.Drawing.Size(268, 69);
             this.labelDescription.TabIndex = 1;
-            this.labelDescription.Text = "Use this tool to globally configure expense attachment settings. his changes ALL " +
-    "clients and matters";
+            this.labelDescription.Text = "Use this tool to globally configure expense attachment settings. This changes ALL" +
+    " clients and matters";
+            this.labelDescription.Click += new System.EventHandler(this.labelDescription_Click);
             // 
             // statusGroupBox
             // 

@@ -101,40 +101,56 @@ namespace JurisUtilityBase
             // Enter your SQL code here
             // To run a T-SQL statement with no results, int RecordsAffected = _jurisUtility.ExecuteNonQueryCommand(0, SQL);
             // To get an ADODB.Recordset, ADODB.Recordset myRS = _jurisUtility.RecordsetFromSQL(SQL);
-            if (getCodeFromSelection().ToString().Equals("4"))
-                MessageBox.Show("Please choose at least one radio button", "Selection error", MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+
+            string test = "select *  from sysparam where spname='cfgexpattprintopts'";
+            DataSet ds = _jurisUtility.RecordsetFromSQL(test);
+            if (ds.Tables[0].Rows.Count == 0)
+                MessageBox.Show("Expense attachments are not enabled in this database.", "Schema Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             else
             {
-                if (!isMoneyAmount() && getCodeFromSelection().ToString().Equals("2"))
-                    MessageBox.Show("Please correct the money amount. The proper format is ##.## or #,###.##", "Selection error", MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+                if (getCodeFromSelection().ToString().Equals("4"))
+                    MessageBox.Show("Please choose at least one radio button", "Selection error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 else
                 {
-                    DialogResult dr = MessageBox.Show("This will update ALL Clients and Matters. Continue?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (dr == System.Windows.Forms.DialogResult.Yes)
+                    if (!isMoneyAmount() && getCodeFromSelection().ToString().Equals("2"))
+                        MessageBox.Show("Please correct the money amount. The proper format is ##.## or #,###.##", "Selection error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    else
                     {
-                        string code = getCodeFromSelection().ToString();
-
-                        string SQL = "Update Client Set CliPrintAttExpOpts = " + code;// 1 or 0 or 2 depending on selection above
-                        _jurisUtility.ExecuteNonQueryCommand(0, SQL);
-                        UpdateStatus("Updating Clients.", 1, 4);
-
-                        SQL = "Update Matter Set MatPrintAttExpOpts = " + code; // 1  or 0 or 2 depending on selection above
-                        _jurisUtility.ExecuteNonQueryCommand(0, SQL);
-                        UpdateStatus("Updating Matters.", 2, 4);
-
-                        if (code.Equals("2"))
+                        DialogResult dr = MessageBox.Show("This will update ALL Clients and Matters. Continue?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (dr == System.Windows.Forms.DialogResult.Yes)
                         {
-                            SQL = "update client set cliprintattexpamount = " + textBoxAmount.Text;
-                            _jurisUtility.ExecuteNonQueryCommand(0, SQL);
-                            UpdateStatus("Updating Client/Matter Amounts.", 3, 4);
+                            string code = getCodeFromSelection().ToString();
 
-                            SQL = "update matter set matprintattexpamount = " + textBoxAmount.Text;
+                            string SQL = "Update Client Set CliPrintAttExpOpts = " + code;// 1 or 0 or 2 depending on selection above
                             _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+                            UpdateStatus("Updating Clients.", 1, 4);
 
+                            SQL = "Update Matter Set MatPrintAttExpOpts = " + code; // 1  or 0 or 2 depending on selection above
+                            _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+                            UpdateStatus("Updating Matters.", 2, 4);
+                            //if not 2 set amount to null
+
+                            if (code.Equals("2"))
+                            {
+                                SQL = "update client set cliprintattexpamount = " + textBoxAmount.Text;
+                                _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+                                UpdateStatus("Updating Client/Matter Amounts.", 3, 4);
+
+                                SQL = "update matter set matprintattexpamount = " + textBoxAmount.Text;
+                                _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+                            }
+                            else
+                            {
+                                SQL = "update client set cliprintattexpamount = null";
+                                _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+
+                                SQL = "update matter set matprintattexpamount = null";
+                                _jurisUtility.ExecuteNonQueryCommand(0, SQL);
+                            }
+                            UpdateStatus("Process Complete.", 4, 4);
+
+                            MessageBox.Show("The process is complete", "Confirmation", MessageBoxButtons.OK, MessageBoxIcon.None);
                         }
-                        UpdateStatus("Process Complete.", 4, 4);
-
-                        MessageBox.Show("The process is complete", "Confirmation", MessageBoxButtons.OK, MessageBoxIcon.None);
                     }
                 }
             }
@@ -330,6 +346,11 @@ namespace JurisUtilityBase
 
             System.Environment.Exit(0);
           
+        }
+
+        private void labelDescription_Click(object sender, EventArgs e)
+        {
+
         }
 
 
